@@ -1,0 +1,33 @@
+{
+  "name": "Main Game",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Knit": {
+        "$path": "src/_framework/Knit"
+      },
+      "SharedModules": {
+        "$path": "src/Shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "Game": {
+        "$path": "src/Server"
+      }
+    },
+
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "Game": {
+          "$path": "src/Client"
+        }
+      }
+    }
+  }
+}
