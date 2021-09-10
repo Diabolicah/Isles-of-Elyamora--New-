@@ -8,8 +8,11 @@
       "Knit": {
         "$path": "src/_framework/Knit"
       },
-      "SharedModules": {
-        "$path": "src/Shared"
+      "Game": {
+        "$className": "Folder",
+        "SharedModules": {
+          "$path": "src/Shared"
+        }
       }
     },
 
