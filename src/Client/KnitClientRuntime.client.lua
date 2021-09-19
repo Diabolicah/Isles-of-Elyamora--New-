@@ -1,3 +1,4 @@
+local Players = game:GetService("Players")
 local Knit = require(game:GetService("ReplicatedStorage").Knit)
 local Promise = require(Knit.Util.Promise)
 local Component = require(Knit.Util.Component)
@@ -34,3 +35,13 @@ Knit.Start():Then(function()
     Component.Auto(script.Parent.Components)
     Knit.ComponenetsLoaded = true
 end):Catch(warn)
+
+local lplayer = Players.LocalPlayer
+local char = lplayer.Character or lplayer.CharacterAdded:Wait()
+local hum = char:WaitForChild("Humanoid")
+local animator = hum:WaitForChild("Animator")
+local Animation = require(Knit.ClientModules.Animation)
+local tempAnimation = Animation.new(animator)
+tempAnimation:LoadAnimation("Weapon/Scythe"):Then(print):Catch(warn)
+tempAnimation:LoadAnimation("Weapon"):Then(print):Catch(warn)
+tempAnimation:LoadAnimation(""):Catch(warn)

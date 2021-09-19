@@ -3,7 +3,6 @@
 -- September 10, 2021
 
 --[[
-
     RigHandler.RigWeapon(Player: Player, Weapon: BasePart) -> Promise
 --]]
 
@@ -14,7 +13,7 @@ local Sentry = require(Knit.ServerModules.Sentry)
 
 local RigHandler = {}
 
-local function _settingsChecker(instance: BasePart, ...: string)
+local function _settingsChecker(instance: BasePart, ...: string): boolean
     local args = {...}
     local configuration = instance:FindFirstChildWhichIsA("Configuration")
     if not configuration then return false end
@@ -24,14 +23,16 @@ local function _settingsChecker(instance: BasePart, ...: string)
     return true
 end
 
-function RigHandler.RigWeapon(player: Player, weapon: BasePart)
+function RigHandler.RigWeapon(player: Player, weapon: BasePart): Promise
+    assert(player, "Player was not provided.")
+    assert(weapon, "Weapon was not provided.")
     return Promise.new(function(resolve, reject)
        --Check if settings are correct.
-        if not _settingsChecker(weapon, "DefaultC0", "DefaultC1", "DefaultPart0", "DefaultSize") then
+        if not _settingsChecker(weapon, "DefaultC0", "DefaultC1", "DefaultPart0", "DefaultSize", "DefaultAnimationPartName") then
             local err = "Weapon given did not have the appropriate settings."
             warn(err)
             Sentry.captureMessage(err, Sentry.Level.Warning)
-            reject(err)
+            return reject(err)
         end
         local character: Model = player.Character
 
@@ -39,7 +40,7 @@ function RigHandler.RigWeapon(player: Player, weapon: BasePart)
             local err = "Character can not be found."
             warn(err)
             Sentry.captureMessage(err, Sentry.Level.Warning)
-            reject(err)
+            return reject(err)
         end
 
         local part0: BasePart = character:FindFirstChild(weapon.Configuration.DefaultPart0.Value)
@@ -47,7 +48,7 @@ function RigHandler.RigWeapon(player: Player, weapon: BasePart)
             local err = "Provided part0 is not a part of the player."
             warn(err)
             Sentry.captureMessage(err, Sentry.Level.Warning)
-            reject(err)
+            return reject(err)
         end
 
         --Check if character has storage folder.
@@ -60,6 +61,7 @@ function RigHandler.RigWeapon(player: Player, weapon: BasePart)
 
         --Create a weapon copy.
         local weaponCopy: BasePart = weapon:Clone()
+        weaponCopy.Name = weapon.Configuration.DefaultAnimationPartName.Value
         weaponCopy.Configuration:Destroy()
         weaponCopy.Size = weapon.Configuration.DefaultSize.Value
         weaponCopy.Parent = equipmentFolder
@@ -73,7 +75,7 @@ function RigHandler.RigWeapon(player: Player, weapon: BasePart)
         motor6.C1 = weapon.Configuration.DefaultC1.Value
         motor6.Parent = weaponCopy
 
-        resolve("Rigged weapon "..weapon.Name.." successfully.")
+        return resolve("Rigged weapon \""..weapon.Name.."\" successfully.")
     end)
 end
 
