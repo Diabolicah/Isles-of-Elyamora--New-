@@ -71,10 +71,22 @@ function Animation:_loadAnimation(animationPath: string, animationId: string, ma
     local animation = Instance.new("Animation")
     animation.AnimationId = animationId
     local animationTrack = self._animator:LoadAnimation(animation)
+    local animationTrackSignals = {}
+    local animationSignalsJanitor = Janitor.new()
+    self._janitor:Add(animationSignalsJanitor)
+    for _,markerName in ipairs(markerList) do
+        print(markerName)
+        local animationSignal = animationTrack:GetMarkerReachedSignal(markerName):Connect(function(paramString)
+            self._keyframeMarkerReached:Fire(animationPath, markerName, paramString)
+        end)
+        animationSignalsJanitor:Add(animationSignal)
+        table.insert(animationTrackSignals, animationSignal)
+    end
     self._animationTrackList[animationPath] = {
         ["AnimationTrack"] = animationTrack,
         ["LastUsed"] = DateTime.now().UnixTimestampMillis,
-        ["MarkerList"] = markerList,
+        ["MarkerSignalList"] = animationTrackSignals,
+        ["AnimationJanitor"] = animationSignalsJanitor,
         ["Active"] = false
     }
     self._animationLoaded = self._animationLoaded + 1
@@ -84,6 +96,8 @@ end
 function Animation:_unloadAnimation(animationPath: string)
     self._animationTrackList[animationPath].AnimationTrack:Stop()
     self._animationTrackList[animationPath].AnimationTrack:Destroy()
+    self._animationTrackList[animationPath].AnimationJanitor:Destroy()
+    self._animationTrackList[animationPath].MarkerSignalList = nil
     self._animationTrackList[animationPath] = nil
     self._animationLoaded = self._animationLoaded - 1
 end
