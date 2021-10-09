@@ -28,6 +28,7 @@ local AnimationsList = require(Knit.SharedModules.AnimationsList)
 local MAX_ANIMATIONS_LOADED = 200
 local PATH_NOT_VALID = "\"%s\" is not a valid path."
 local ANIMATION_LOADED = "\"%s\" has/already loaded."
+local ANIMATION_PLAYED = "\"%s\" has been played."
 
 
 local Animation = {}
@@ -125,12 +126,24 @@ function Animation:LoadAnimation(animationPath: string): Promise
     end))
 end
 
-function Animation:PlayAnimation(animationPath: string, fadeTime: number, weight: number, speed: number) --Need to regex
-
+function Animation:PlayAnimation(animationPath: string, fadeTime: number, weight: number, speed: number): Promise --Need to regex
+    assert(animationPath, "Animation path was not provided.")
+    return self._janitor:AddPromise(Promise.new(function(resolve, reject)
+        local loadedAnimationTracks = TableUtil.Keys(self._animationTrackList)
+        if not table.find(loadedAnimationTracks,animationPath) then return self:LoadAnimation(animationPath):Then(self:PlayAnimation(animationPath, fadeTime, weight, speed)):catch(warn) end
+        self._animationTrackList[animationPath].AnimationTrack:Play(fadeTime, weight, speed)
+        return resolve(string.format(ANIMATION_PLAYED, animationPath))
+    end))
 end
 
 function Animation:StopAnimation(animationPath: string, fadeTime: number) --Need to regex
-
+    assert(animationPath, "Animation path was not provided.")
+    return self._janitor:AddPromise(Promise.new(function(resolve, reject)
+        local loadedAnimationTracks = TableUtil.Keys(self._animationTrackList)
+        if not table.find(loadedAnimationTracks,animationPath) then return reject(string.format(PATH_NOT_VALID, animationPath)) end
+        self._animationTrackList[animationPath].AnimationTrack:Stop(fadeTime)
+        return resolve(string.format(ANIMATION_PLAYED, animationPath))
+    end))
 end
 
 
