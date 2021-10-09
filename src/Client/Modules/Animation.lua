@@ -7,7 +7,7 @@
 
     Animation:LoadAnimation(AnimationPath: String): Promise
     Animation:PlayAnimation(AnimationPath: String, FadeTime: Number, Weight: Number, Speed: Number): Promise
-    Animation:StopAnimation(AnimationPath: String, FadeTime: Number)
+    Animation:StopAnimation(AnimationPath: String, FadeTime: Number): Promise
 
 
     Weapon/Scythe/Light1 = {
@@ -76,7 +76,6 @@ function Animation:_loadAnimation(animationPath: string, animationId: string, ma
     local animationSignalsJanitor = Janitor.new()
     self._janitor:Add(animationSignalsJanitor)
     for _,markerName in ipairs(markerList) do
-        print(markerName)
         local animationSignal = animationTrack:GetMarkerReachedSignal(markerName):Connect(function(paramString)
             self._keyframeMarkerReached:Fire(animationPath, markerName, paramString)
         end)
@@ -132,11 +131,13 @@ function Animation:PlayAnimation(animationPath: string, fadeTime: number, weight
         local loadedAnimationTracks = TableUtil.Keys(self._animationTrackList)
         if not table.find(loadedAnimationTracks,animationPath) then return self:LoadAnimation(animationPath):Then(self:PlayAnimation(animationPath, fadeTime, weight, speed)):catch(warn) end
         self._animationTrackList[animationPath].AnimationTrack:Play(fadeTime, weight, speed)
-        return resolve(string.format(ANIMATION_PLAYED, animationPath))
+        self._animationTrackList[animationPath].AnimationTrack.Stopped:Connect(function() 
+            resolve(string.format(ANIMATION_PLAYED, animationPath))
+        end)
     end))
 end
 
-function Animation:StopAnimation(animationPath: string, fadeTime: number) --Need to regex
+function Animation:StopAnimation(animationPath: string, fadeTime: number): Promise--Need to regex
     assert(animationPath, "Animation path was not provided.")
     return self._janitor:AddPromise(Promise.new(function(resolve, reject)
         local loadedAnimationTracks = TableUtil.Keys(self._animationTrackList)
