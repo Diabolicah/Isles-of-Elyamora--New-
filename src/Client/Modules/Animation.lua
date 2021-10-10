@@ -131,6 +131,7 @@ function Animation:PlayAnimation(animationPath: string, fadeTime: number, weight
         local loadedAnimationTracks = TableUtil.Keys(self._animationTrackList)
         if not table.find(loadedAnimationTracks,animationPath) then return self:LoadAnimation(animationPath):Then(self:PlayAnimation(animationPath, fadeTime, weight, speed)):catch(warn) end
         self._animationTrackList[animationPath].AnimationTrack:Play(fadeTime, weight, speed)
+        self._animationTrackList[animationPath].LastUsed = DateTime.now().UnixTimestampMillis
         self._animationTrackList[animationPath].AnimationTrack.Stopped:Connect(function() 
             resolve(string.format(ANIMATION_PLAYED, animationPath))
         end)
@@ -142,6 +143,7 @@ function Animation:StopAnimation(animationPath: string, fadeTime: number): Promi
     return self._janitor:AddPromise(Promise.new(function(resolve, reject)
         local loadedAnimationTracks = TableUtil.Keys(self._animationTrackList)
         if not table.find(loadedAnimationTracks,animationPath) then return reject(string.format(PATH_NOT_VALID, animationPath)) end
+        self._animationTrackList[animationPath].LastUsed = DateTime.now().UnixTimestampMillis        
         self._animationTrackList[animationPath].AnimationTrack:Stop(fadeTime)
         return resolve(string.format(ANIMATION_PLAYED, animationPath))
     end))
