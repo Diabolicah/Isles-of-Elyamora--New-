@@ -11,8 +11,8 @@ local AnimationsList = {
             ["Heavy"] = {id = "rbxassetid://7447530097", markerList = {"Attack Hitbox Start", "Attack Hitbox End"}},
             ["Block"] = {id = "rbxassetid://7448187904", markerList = {}},
             ["Walk"] = {id = "rbxassetid://7448102599", markerList = {}},
-            ["Run"] = {id = "rbxassetid://7441379422", markerList = {}},
-            ["Idle"] = {id = "rbxassetid://7441385521", markerList = {}}
+            ["Run"] = {id = "rbxassetid://7786424474", markerList = {}},
+            ["Idle"] = {id = "rbxassetid://7786345776", markerList = {}}
         },
     }
 }

@@ -129,7 +129,7 @@ function Animation:PlayAnimation(animationPath: string, fadeTime: number, weight
     assert(animationPath, "Animation path was not provided.")
     return self._janitor:AddPromise(Promise.new(function(resolve, reject)
         local loadedAnimationTracks = TableUtil.Keys(self._animationTrackList)
-        if not table.find(loadedAnimationTracks,animationPath) then return self:LoadAnimation(animationPath):Then(self:PlayAnimation(animationPath, fadeTime, weight, speed)):catch(warn) end
+        if not table.find(loadedAnimationTracks,animationPath) then return self:LoadAnimation(animationPath):Then(self:PlayAnimation(animationPath, fadeTime, weight, speed)):catch(reject) end
         self._animationTrackList[animationPath].AnimationTrack:Play(fadeTime, weight, speed)
         self._animationTrackList[animationPath].LastUsed = DateTime.now().UnixTimestampMillis
         self._animationTrackList[animationPath].AnimationTrack.Stopped:Connect(function() 
